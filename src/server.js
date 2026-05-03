@@ -67,6 +67,11 @@ If asked anything outside elections: "I'm your election specialist! Ask me about
 
 Be warm, precise, and never partisan.`;
 
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+});
+
 // ─── Chat Endpoint ──────────────────────────────────────────────────────────
 app.post("/api/chat", chatLimiter, async (req, res) => {
   const { message, history } = req.body;
@@ -87,11 +92,6 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-    });
-
     const safeHistory = (history || [])
       .slice(-10)
       .filter((h) => h.role && h.parts)
@@ -113,7 +113,6 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
 
     res.json({ reply: text });
   } catch (err) {
-    console.error("Gemini Logic Error:", err.message);
     res.status(500).json({ error: "AI service error. Please try again." });
   }
 });
@@ -145,7 +144,7 @@ app.get("*", (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`ElectionIQ server running on port ${PORT}`);
+  // server running
 });
 
 module.exports = app;

@@ -496,8 +496,8 @@
         <h3>Voter Readiness</h3>
         <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
           <div id="readiness-percent" style="font-size:36px;font-weight:800;color:var(--accent);line-height:1;">0%</div>
-          <div style="width:100%;background:#eee;height:10px;border-radius:5px;margin:10px 0;overflow:hidden;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="readiness-bar-wrapper">
-            <div id="readiness-bar" style="width:0%;height:100%;background:var(--accent);transition:width 0.6s cubic-bezier(0.4,0,0.2,1);"></div>
+          <div style="width:100%;background:#eee;height:10px;border-radius:5px;margin:10px 0;overflow:hidden;" role="progressbar" aria-label="Readiness Meter" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="readiness-bar-wrapper">
+            <div id="readiness-bar" style="width:0%;height:100%;background:var(--accent);transition:width 0.6s ease-in-out;"></div>
           </div>
           <p id="readiness-status" style="font-size:11px;color:var(--muted);line-height:1.4;">Complete the wizard below to check your readiness.</p>
         </div>
@@ -612,7 +612,7 @@
             placeholder="Ask about elections, voting, timelines..."
             rows="1"
             maxlength="500"
-            aria-label="Type your question about elections"
+            aria-label="Chat input"
             aria-multiline="true"
           ></textarea>
           <button class="send-btn" id="sendBtn" aria-label="Send message" title="Send message">
