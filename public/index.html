@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ElectionIQ — Your Election Process Guide</title>
+  <meta name="description" content="An interactive assistant to help you understand elections, voter registration, timelines, and the democratic process." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --ink: #0d1117;
+      --paper: #f5f0e8;
+      --cream: #ede8dc;
+      --accent: #c84b2f;
+      --accent-dark: #9e3520;
+      --gold: #d4a029;
+      --muted: #6b6559;
+      --border: #d8d2c6;
+      --chat-user: #1a2744;
+      --chat-ai: #ffffff;
+      --shadow: 0 2px 12px rgba(13,17,23,0.08);
+      --radius: 14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ────────────────────────────────── */
+    header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span { color: var(--gold); }
+
+    .header-badge {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      border: 1px solid #2d3748;
+      border-radius: 20px;
+      padding: 4px 12px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Layout ────────────────────────────────── */
+    .app {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      gap: 0;
+      height: calc(100vh - 64px);
+    }
+
+    /* ── Sidebar ───────────────────────────────── */
+    .sidebar {
+      background: var(--cream);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 24px 20px;
+      gap: 24px;
+    }
+
+    .sidebar-section h3 {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .topic-btn {
+      width: 100%;
+      text-align: left;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+    }
+
+    .topic-btn:hover {
+      border-color: var(--accent);
+      background: #fff8f7;
+      transform: translateX(2px);
+    }
+
+    .topic-btn .t-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Timeline card in sidebar */
+    .timeline-card {
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .timeline-card h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      margin-bottom: 14px;
+      color: var(--gold);
+    }
+
+    .timeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tl-dot {
+      width: 22px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .tl-text {
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: 0.9;
+    }
+
+    .tl-text strong {
+      display: block;
+      font-size: 12px;
+      color: var(--paper);
+      margin-bottom: 1px;
+    }
+
+    .tl-text span {
+      color: #9aa5b4;
+      font-size: 11px;
+    }
+
+    /* ── Chat Area ─────────────────────────────── */
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* Welcome state */
+    .welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      gap: 16px;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .welcome-icon {
+      font-size: 64px;
+      line-height: 1;
+    }
+
+    .welcome h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--ink);
+      max-width: 480px;
+    }
+
+    .welcome p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    .welcome-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--ink);
+    }
+
+    .chip:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    /* Messages */
+    .message {
+      display: flex;
+      gap: 12px;
+      animation: fadeUp 0.25s ease;
+      max-width: 740px;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+      align-self: flex-end;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+    }
+
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .message.user .msg-avatar { background: var(--chat-user); }
+    .message.assistant .msg-avatar { background: var(--accent); }
+
+    .msg-bubble {
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 620px;
+    }
+
+    .message.user .msg-bubble {
+      background: var(--chat-user);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant .msg-bubble {
+      background: white;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .msg-bubble p { margin-bottom: 8px; }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+    .msg-bubble strong { font-weight: 600; }
+    .msg-bubble ul, .msg-bubble ol { padding-left: 20px; margin: 8px 0; }
+    .msg-bubble li { margin-bottom: 4px; }
+
+    /* Typing indicator */
+    .typing-indicator .msg-bubble {
+      padding: 14px 20px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .dots span {
+      width: 7px;
+      height: 7px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* ── Input Bar ──────────────────────────────── */
+    .input-bar {
+      padding: 16px 40px 20px;
+      background: var(--paper);
+      border-top: 1px solid var(--border);
+    }
+
+    .input-inner {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .input-inner:focus-within {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      flex: 1;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+      background: transparent;
+      min-height: 24px;
+      max-height: 120px;
+      line-height: 1.5;
+    }
+
+    textarea::placeholder { color: #bbb; }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.1s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover { background: var(--accent-dark); }
+    .send-btn:active { transform: scale(0.95); }
+    .send-btn:disabled { background: var(--border); cursor: not-allowed; }
+
+    .send-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
+    }
+
+    .input-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* ── Error Toast ────────────────────────────── */
+    .error-toast {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    .error-toast.show { display: block; }
+
+    /* ── Animations ─────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-5px); }
+    }
+
+    /* ── Responsive ─────────────────────────────── */
+    @media (max-width: 768px) {
+      .app {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: calc(100vh - 64px);
+      }
+
+      .sidebar { display: none; }
+
+      .chat-messages { padding: 20px 16px; }
+      .input-bar { padding: 12px 16px; }
+      .message { max-width: 100%; }
+      .msg-bubble { max-width: calc(100vw - 100px); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🗳️</div>
+      <div class="logo-text">Election<span>IQ</span></div>
+    </div>
+    <div class="header-badge">Powered by Google Gemini</div>
+  </header>
+
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" aria-label="Quick topics and election timeline">
+
+      <!-- Voter Readiness Score -->
+      <div class="sidebar-section">
+        <h3>Voter Readiness</h3>
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;box-shadow:var(--shadow);">
+          <div id="readiness-percent" style="font-size:36px;font-weight:800;color:var(--accent);line-height:1;">0%</div>
+          <div style="width:100%;background:#eee;height:10px;border-radius:5px;margin:10px 0;overflow:hidden;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="readiness-bar-wrapper">
+            <div id="readiness-bar" style="width:0%;height:100%;background:var(--accent);transition:width 0.6s cubic-bezier(0.4,0,0.2,1);"></div>
+          </div>
+          <p id="readiness-status" style="font-size:11px;color:var(--muted);line-height:1.4;">Complete the wizard below to check your readiness.</p>
+        </div>
+      </div>
+
+      <!-- Eligibility Wizard -->
+      <div class="sidebar-section">
+        <h3>Eligibility Wizard</h3>
+        <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;">
+          <input type="number" id="voter-age" placeholder="Your Age" min="1" max="120"
+            aria-label="Your age"
+            style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;" />
+          <select id="is-registered" aria-label="Registration status"
+            style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+            <option value="no">Not Registered</option>
+            <option value="yes">Registered to Vote</option>
+          </select>
+          <select id="has-id" aria-label="Do you have valid government ID?"
+            style="width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;">
+            <option value="no">No Valid ID Yet</option>
+            <option value="yes">Have Valid Voter ID</option>
+          </select>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px;">Next Step</div>
+          <div id="next-step-box"
+            style="font-size:12px;color:var(--accent);background:#fff5f5;padding:10px 12px;border-radius:8px;border:1px dashed var(--accent);line-height:1.5;"
+            aria-live="polite">
+            Enter your age to begin.
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Topics -->
+      <div class="sidebar-section">
+        <h3>Quick Topics</h3>
+        <div id="topics-list" role="list" aria-label="Quick topic buttons">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="timeline-card" role="complementary" aria-label="Election timeline overview">
+          <h4>📅 General Election Timeline</h4>
+          <div class="timeline-step">
+            <div class="tl-dot">1</div>
+            <div class="tl-text">
+              <strong>Announcement</strong>
+              <span>Election dates declared by authority</span>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="tl-dot">2</div>
+            <div class="tl-text">
+              <strong>Voter Registration</strong>
+              <span>Deadline to register / update rolls</span>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="tl-dot">3</div>
+            <div class="tl-text">
+              <strong>Candidate Nomination</strong>
+              <span>Filing & verification of candidates</span>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="tl-dot">4</div>
+            <div class="tl-text">
+              <strong>Campaign Period</strong>
+              <span>Campaigning within code of conduct</span>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="tl-dot">5</div>
+            <div class="tl-text">
+              <strong>Polling Day</strong>
+              <span>Voters cast ballots at booths</span>
+            </div>
+          </div>
+          <div class="timeline-step">
+            <div class="tl-dot" style="background: var(--gold);">6</div>
+            <div class="tl-text">
+              <strong>Counting & Results</strong>
+              <span>Votes tallied, winner declared</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="chat-area" role="main" aria-label="Election assistant chat">
+
+      <div class="chat-messages" id="chatMessages" role="log" aria-live="polite" aria-label="Chat messages">
+        <div class="welcome" id="welcomeScreen">
+          <div class="welcome-icon" aria-hidden="true">🗳️</div>
+          <h2>Your Personal Election Guide</h2>
+          <p>Ask me anything about voter registration, election timelines, how votes are counted, or how democracy works — in plain language.</p>
+          <div class="welcome-chips" role="list" aria-label="Suggested questions">
+            <button class="chip" data-prompt="How do I register to vote in India?">📝 How to register to vote?</button>
+            <button class="chip" data-prompt="Explain the step-by-step voting process">🗳️ Voting process</button>
+            <button class="chip" data-prompt="What is EVM and how does it work?">🔌 How does EVM work?</button>
+            <button class="chip" data-prompt="What is the Model Code of Conduct?">📜 Model Code of Conduct</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-bar">
+        <div class="error-toast" id="errorToast" role="alert" aria-live="assertive"></div>
+        <div class="input-inner" role="form" aria-label="Message input">
+          <textarea
+            id="userInput"
+            placeholder="Ask about elections, voting, timelines..."
+            rows="1"
+            maxlength="500"
+            aria-label="Type your question about elections"
+            aria-multiline="true"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" aria-label="Send message" title="Send message">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="input-hint" aria-live="polite" id="charCount">Press Enter to send · 500 chars max</div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ─── State ──────────────────────────────────────────────────────────────
+    let conversationHistory = [];
+    let isLoading = false;
+
+    // ─── DOM refs ────────────────────────────────────────────────────────────
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const errorToast = document.getElementById('errorToast');
+    const charCount = document.getElementById('charCount');
+    const welcomeScreen = document.getElementById('welcomeScreen');
+
+    // ─── Load Topics ─────────────────────────────────────────────────────────
+    async function loadTopics() {
+      try {
+        const res = await fetch('/api/topics');
+        const data = await res.json();
+        const list = document.getElementById('topics-list');
+        list.innerHTML = '';
+        data.topics.forEach(t => {
+          const btn = document.createElement('button');
+          btn.className = 'topic-btn';
+          btn.setAttribute('role', 'listitem');
+          btn.setAttribute('aria-label', `Ask about: ${t.label}`);
+          btn.innerHTML = `<span class="t-icon" aria-hidden="true">${t.icon}</span>${t.label}`;
+          btn.addEventListener('click', () => sendQuick(t.label));
+          list.appendChild(btn);
+        });
+      } catch (e) {
+        console.warn('Could not load topics:', e);
+      }
+    }
+
+    // ─── Auto-resize textarea ─────────────────────────────────────────────────
+    userInput.addEventListener('input', () => {
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+      const remaining = 500 - userInput.value.length;
+      charCount.textContent = remaining < 100
+        ? `${remaining} characters remaining`
+        : 'Press Enter to send · 500 chars max';
+    });
+
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // ─── Send Quick Message ───────────────────────────────────────────────────
+    function sendQuick(text) {
+      userInput.value = text;
+      sendMessage();
+    }
+
+    // ─── Append Message ───────────────────────────────────────────────────────
+    function appendMessage(role, text, isTyping = false) {
+      if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = `message ${role}`;
+      if (isTyping) wrapper.id = 'typingIndicator';
+      wrapper.setAttribute('role', 'listitem');
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.setAttribute('aria-hidden', 'true');
+      avatar.textContent = role === 'user' ? '👤' : '🗳️';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+
+      if (isTyping) {
+        bubble.classList.add('typing-indicator');
+        bubble.innerHTML = '<div class="dots" aria-label="Assistant is typing"><span></span><span></span><span></span></div>';
+      } else {
+        bubble.innerHTML = formatMessage(text);
+      }
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(bubble);
+      chatMessages.appendChild(wrapper);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return wrapper;
+    }
+
+    // ─── Format message text ──────────────────────────────────────────────────
+    function formatMessage(text) {
+      // Sanitize
+      text = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Bold **text**
+      text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+      // Numbered lists
+      text = text.replace(/^(\d+)\.\s(.+)$/gm, '<li>$2</li>');
+
+      // Bullet lists
+      text = text.replace(/^[•\-\*]\s(.+)$/gm, '<li>$1</li>');
+
+      // Wrap consecutive <li> in <ul>
+      text = text.replace(/(<li>.*?<\/li>(\s*<li>.*?<\/li>)*)/gs, '<ul>$1</ul>');
+
+      // Paragraphs
+      text = text.split('\n\n').map(p => {
+        p = p.trim();
+        if (!p || p.startsWith('<ul>') || p.startsWith('<ol>')) return p;
+        return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+      }).join('');
+
+      return text;
+    }
+
+    // ─── Show / hide error ────────────────────────────────────────────────────
+    function showError(msg) {
+      errorToast.textContent = msg;
+      errorToast.classList.add('show');
+      setTimeout(() => errorToast.classList.remove('show'), 4000);
+    }
+
+    // ─── Send Message ─────────────────────────────────────────────────────────
+    async function sendMessage() {
+      const text = userInput.value.trim();
+      if (!text || isLoading) return;
+      if (text.length > 500) {
+        showError('Message too long — please keep it under 500 characters.');
+        return;
+      }
+
+      isLoading = true;
+      sendBtn.disabled = true;
+      userInput.value = '';
+      userInput.style.height = 'auto';
+
+      appendMessage('user', text);
+
+      const typingEl = appendMessage('assistant', '', true);
+
+      try {
+        const payload = {
+          message: text,
+          history: conversationHistory.slice(-10).map(h => ({
+            role: h.role === 'assistant' ? 'model' : 'user',
+            parts: h.content,
+          })),
+        };
+
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        typingEl.remove();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Something went wrong.');
+        }
+
+        appendMessage('assistant', data.reply);
+
+        conversationHistory.push({ role: 'user', content: text });
+        conversationHistory.push({ role: 'assistant', content: data.reply });
+
+        // Keep history manageable
+        if (conversationHistory.length > 20) {
+          conversationHistory = conversationHistory.slice(-20);
+        }
+
+        // Update readiness meter — "engaged with AI" point
+        updateVoterLogic();
+
+      } catch (err) {
+        typingEl.remove();
+        showError(err.message || 'Failed to get a response. Please try again.');
+        console.error(err);
+      } finally {
+        isLoading = false;
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    // ─── Voter Readiness Logic ────────────────────────────────────────────────
+    function updateVoterLogic() {
+      const age = parseInt(document.getElementById('voter-age').value) || 0;
+      const registered = document.getElementById('is-registered').value;
+      const hasId = document.getElementById('has-id').value;
+      const nextStepBox = document.getElementById('next-step-box');
+      const bar = document.getElementById('readiness-bar');
+      const pct = document.getElementById('readiness-percent');
+      const status = document.getElementById('readiness-status');
+      const wrapper = document.getElementById('readiness-bar-wrapper');
+
+      let score = 0;
+      let recommendation = '';
+      let statusText = '';
+
+      if (age < 1) {
+        recommendation = 'Enter your age to begin.';
+        statusText = 'Awaiting your details.';
+      } else if (age < 18) {
+        score = 10;
+        recommendation = `You'll be eligible to vote at 18 — ${18 - age} year(s) to go! Learn the process now so you're ready.`;
+        statusText = 'Not yet eligible.';
+      } else {
+        score += 25; // age eligible
+        if (registered === 'yes') score += 25;
+        if (hasId === 'yes') score += 25;
+        if (conversationHistory.length >= 2) score += 25; // engaged with AI
+
+        if (registered === 'no') {
+          recommendation = '📝 Priority: Register to vote. Ask me "How do I register to vote in India?"';
+        } else if (hasId === 'no') {
+          recommendation = '🪪 Get your Voter ID (EPIC card). Ask me "How to get a Voter ID card?"';
+        } else if (conversationHistory.length < 2) {
+          recommendation = '💬 Ask me about polling day procedures to complete your readiness!';
+        } else {
+          recommendation = '✅ You\'re fully prepared to vote! Ask any last questions.';
+        }
+
+        if (score <= 25) statusText = 'Getting started — a few steps to go.';
+        else if (score <= 50) statusText = 'Making progress — keep going!';
+        else if (score <= 75) statusText = 'Almost ready — one more step!';
+        else statusText = 'Fully ready to vote! 🎉';
+      }
+
+      score = Math.min(score, 100);
+      pct.textContent = score + '%';
+      bar.style.width = score + '%';
+      wrapper.setAttribute('aria-valuenow', score);
+      nextStepBox.textContent = recommendation;
+      status.textContent = statusText;
+
+      // Auto-send contextual prompt if age is just entered
+      if (age >= 18 && registered === 'no' && conversationHistory.length === 0) {
+        setTimeout(() => sendQuick('I am ' + age + ' years old and not yet registered to vote. What should I do first?'), 300);
+      }
+    }
+
+    // Re-run readiness check whenever AI responds (to tick off "engaged" point)
+    const _origAppend = appendMessage;
+
+    // ─── Init ─────────────────────────────────────────────────────────────────
+    loadTopics();
+    userInput.focus();
+
+    // Send button
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Welcome chips
+    document.querySelectorAll('.chip[data-prompt]').forEach(btn => {
+      btn.addEventListener('click', () => sendQuick(btn.dataset.prompt));
+    });
+
+    // Eligibility wizard
+    document.getElementById('voter-age').addEventListener('input', updateVoterLogic);
+    document.getElementById('is-registered').addEventListener('change', updateVoterLogic);
+    document.getElementById('has-id').addEventListener('change', updateVoterLogic);
+  </script>
+
+</body>
+</html>
